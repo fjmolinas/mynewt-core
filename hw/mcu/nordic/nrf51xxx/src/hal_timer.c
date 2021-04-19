@@ -22,11 +22,9 @@
 #include <assert.h>
 #include <errno.h>
 #include "os/mynewt.h"
-#include "mcu/cmsis_nvic.h"
+#include "mcu/mcu.h"
 #include "hal/hal_timer.h"
-#include "nrf51.h"
-#include "nrf51_bitfields.h"
-#include "mcu/nrf51_hal.h"
+#include "nrfx.h"
 
 /* IRQ prototype */
 typedef void (*hal_timer_irq_handler_t)(void);
@@ -575,8 +573,10 @@ hal_timer_init(int timer_num, void *cfg)
 
     /* Disable IRQ, set priority and set vector in table */
     NVIC_DisableIRQ(irq_num);
+#ifndef RIOT_VERSION
     NVIC_SetPriority(irq_num, (1 << __NVIC_PRIO_BITS) - 1);
-    NVIC_SetVector(irq_num, (uint32_t)irq_isr);
+#endif
+    nrf5x_hw_set_isr(irq_num, irq_isr);
 
     return 0;
 
