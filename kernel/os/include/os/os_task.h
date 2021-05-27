@@ -28,10 +28,9 @@
 #ifndef _OS_TASK_H
 #define _OS_TASK_H
 
-#include "os/os.h"
-#include "os/os_sanity.h"
-#include "os/os_arch.h"
+#include "os/os_types.h"
 #include "os/queue.h"
+#include "thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,7 +75,7 @@ typedef enum os_task_state {
 /** Task waiting on a event queue */
 #define OS_TASK_FLAG_EVQ_WAIT       (0x08U)
 
-typedef void (*os_task_func_t)(void *);
+typedef thread_task_func_t os_task_func_t;
 
 #define OS_TASK_MAX_NAME_LEN (32)
 
@@ -84,54 +83,7 @@ typedef void (*os_task_func_t)(void *);
  * Structure containing information about a running task
  */
 struct os_task {
-    /*
-     * t_stackptr and t_stackbottom fields may be accessed directly from
-     * assembly code and should never be moved in this structure.
-     */
-
-    /** Current stack pointer for this task */
-    os_stack_t *t_stackptr;
-    /** Pointer to bottom of this task's stack */
-    os_stack_t *t_stackbottom;
-    /** Size of this task's stack */
-    uint16_t t_stacksize;
-    /** Task ID */
-    uint8_t t_taskid;
-    /** Task Priority */
-    uint8_t t_prio;
-    /* Task state, either READY or SLEEP */
-    uint8_t t_state;
-    /** Task flags, bitmask */
-    uint8_t t_flags;
-    uint8_t t_lockcnt;
-    uint8_t t_pad;
-
-    /** Task name */
-    const char *t_name;
-    /** Task function that executes */
-    os_task_func_t t_func;
-    /** Argument to pass to task function when called */
-    void *t_arg;
-
-    /** Current object task is waiting on, either a semaphore or mutex */
-    void *t_obj;
-
-    /** Default sanity check for this task */
-    struct os_sanity_check t_sanity_check;
-
-    /** Next scheduled wakeup if this task is sleeping */
-    os_time_t t_next_wakeup;
-    /** Total task run time */
-    os_time_t t_run_time;
-    /**
-     * Total number of times this task has been context switched during
-     * execution.
-     */
-    uint32_t t_ctx_sw_cnt;
-
-    STAILQ_ENTRY(os_task) t_os_task_list;
-    TAILQ_ENTRY(os_task) t_os_list;
-    SLIST_ENTRY(os_task) t_obj_list;
+    kernel_pid_t pid;
 };
 
 /** @cond INTERNAL_HIDDEN */
@@ -262,6 +214,12 @@ struct os_task *os_task_info_get_next(const struct os_task *,
  *  @param oti  The OS task info structure to fill out.
  */
 void os_task_info_get(const struct os_task *task, struct os_task_info *oti);
+
+/**
+ *  * @brief   Lets current thread yield.
+ *
+ */
+void os_task_yield(void);
 
 #ifdef __cplusplus
 }

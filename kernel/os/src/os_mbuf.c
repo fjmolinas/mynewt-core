@@ -50,9 +50,7 @@ os_mqueue_init(struct os_mqueue *mq, os_event_fn *ev_cb, void *arg)
     STAILQ_INIT(&mq->mq_head);
 
     ev = &mq->mq_ev;
-    memset(ev, 0, sizeof(*ev));
-    ev->ev_cb = ev_cb;
-    ev->ev_arg = arg;
+    os_event_init(ev, ev_cb, arg);
 
     return (0);
 }

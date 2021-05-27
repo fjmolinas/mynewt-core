@@ -27,7 +27,10 @@
 #ifndef _OS_SEM_H_
 #define _OS_SEM_H_
 
+#include "os/os_types.h"
 #include "os/queue.h"
+#include "os/os_error.h"
+#include "sema.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +40,7 @@ extern "C" {
  * Structure representing an OS semaphore.
  */
 struct os_sem {
-    SLIST_HEAD(, os_task) sem_head;
-    uint16_t    _pad;
-    /** Number of tokens */
-    uint16_t    sem_tokens;
+    sema_t sema;        /**< the semaphore */
 };
 
 /*
@@ -100,7 +100,7 @@ os_error_t os_sem_pend(struct os_sem *sem, os_time_t timeout);
  */
 static inline uint16_t os_sem_get_count(struct os_sem *sem)
 {
-    return sem->sem_tokens;
+    return sem->sema.value;
 }
 
 #ifdef __cplusplus

@@ -20,6 +20,7 @@
 #ifndef H_ENDIAN_
 #define H_ENDIAN_
 
+#include "byteorder.h"
 #include <inttypes.h>
 
 #ifdef __cplusplus

@@ -20,7 +20,6 @@
 #include <assert.h>
 #include "os/mynewt.h"
 #include "mem/mem.h"
-#include "os_priv.h"
 
 static STAILQ_HEAD(, os_mbuf_pool) g_msys_pool_list =
     STAILQ_HEAD_INITIALIZER(g_msys_pool_list);

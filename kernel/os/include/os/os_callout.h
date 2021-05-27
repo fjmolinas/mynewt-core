@@ -31,7 +31,9 @@
 extern "C" {
 #endif
 
+#include "os/queue.h"
 #include "os/os_eventq.h"
+#include "ztimer.h"
 #include <stddef.h>
 
 /**
@@ -43,11 +45,7 @@ struct os_callout {
     struct os_event c_ev;
     /** Pointer to the event queue to post the event to */
     struct os_eventq *c_evq;
-    /** Number of ticks in the future to expire the callout */
-    os_time_t c_ticks;
-
-
-    TAILQ_ENTRY(os_callout) c_next;
+    ztimer_t timer;
 };
 
 /**
@@ -86,7 +84,7 @@ void os_callout_init(struct os_callout *cf, struct os_eventq *evq,
  *
  * @param c The callout to stop
  */
-void os_callout_stop(struct os_callout *);
+void os_callout_stop(struct os_callout *c);
 
 
 /**
@@ -97,7 +95,7 @@ void os_callout_stop(struct os_callout *);
  *
  * @return 0 on success, non-zero on failure
  */
-int os_callout_reset(struct os_callout *, os_time_t);
+int os_callout_reset(struct os_callout *c, os_time_t ticks);
 
 /**
  * Returns the number of ticks which remains to callout.
@@ -107,7 +105,7 @@ int os_callout_reset(struct os_callout *, os_time_t);
  *
  * @return Number of ticks to first pending callout
  */
-os_time_t os_callout_remaining_ticks(struct os_callout *, os_time_t);
+os_time_t os_callout_remaining_ticks(struct os_callout *c, os_time_t now);
 
 /**
  * Returns whether the callout is pending or not.
@@ -119,7 +117,7 @@ os_time_t os_callout_remaining_ticks(struct os_callout *, os_time_t);
 static inline int
 os_callout_queued(struct os_callout *c)
 {
-    return c->c_next.tqe_prev != NULL;
+    return ztimer_is_set(ZTIMER_MSEC, &c->timer);
 }
 
 /**

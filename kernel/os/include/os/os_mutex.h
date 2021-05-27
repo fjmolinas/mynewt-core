@@ -27,8 +27,10 @@
 #ifndef _OS_MUTEX_H_
 #define _OS_MUTEX_H_
 
-#include "os/os.h"
 #include "os/queue.h"
+#include "os/os_types.h"
+#include "os/os_error.h"
+#include "mutex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,14 +40,7 @@ extern "C" {
  * OS mutex structure
  */
 struct os_mutex {
-    SLIST_HEAD(, os_task) mu_head;
-    uint8_t     _pad;
-    /** Mutex owner's default priority */
-    uint8_t     mu_prio;
-    /** Mutex call nesting level */
-    uint16_t    mu_level;
-    /** Task that owns the mutex */
-    struct os_task *mu_owner;
+    mutex_t mutex;
 };
 
 /*
@@ -119,7 +114,8 @@ os_error_t os_mutex_pend(struct os_mutex *mu, os_time_t timeout);
  */
 static inline uint16_t os_mutex_get_level(struct os_mutex *mu)
 {
-    return mu->mu_level;
+    (void) mu;
+    return 0;
 }
 
 #ifdef __cplusplus
