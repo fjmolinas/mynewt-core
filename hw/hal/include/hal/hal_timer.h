@@ -31,6 +31,10 @@
 #include <inttypes.h>
 #include "os/queue.h"
 
+#if !defined(CPU_NRF52) && !defined(CPU_NRF51)
+#include "ztimer.h"
+#include "ztimer/config.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,6 +53,9 @@ typedef void (*hal_timer_cb)(void *arg);
  * structure; the hal timer API should be used.
  */
 struct hal_timer {
+#if !defined(CPU_NRF52) && !defined(CPU_NRF51)
+    ztimer_t timer;
+#else
     /** Internal platform specific pointer */
     void                *bsp_timer;
     /** Callback function */
@@ -58,6 +65,7 @@ struct hal_timer {
     /** Tick at which timer should expire */
     uint32_t            expiry;
     TAILQ_ENTRY(hal_timer) link;    /* Queue linked list structure */
+#endif
 };
 
 /**
